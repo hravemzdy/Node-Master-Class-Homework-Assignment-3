@@ -17,11 +17,11 @@ var _cart = require('./lib/_cart');
 
 //  TEST data
 var testUserEmail = 'test@example.cz';
-var testUserFullname = 'Homework Test';
+var testUserfullName = 'Homework Test';
 var testUserAddress = 'Homework 125, Praha 4';
 var testUserPassword = 'verySecretAndPersonal';
 
-_user_service.create(testUserEmail,testUserPassword,testUserFullname,testUserAddress,function(err, errCreateUser){
+_user_service.create(testUserEmail,testUserPassword,testUserfullName,testUserAddress,function(err, errCreateUser){
   console.log('USER SERVICE STATUS: ', err);
   if (err==200){
     _user_service.findByEmail(testUserEmail,function(err,userData){

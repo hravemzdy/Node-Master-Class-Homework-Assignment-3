@@ -211,7 +211,7 @@
                   "type" : "string",
                   "example" : "user.pizza@example.com"
                 },
-                "fullname" : {
+                "fullName" : {
                   "type" : "string",
                   "example" : "JoHn Doe"
                 },
@@ -268,7 +268,7 @@
           "description" : "user's contact and registration data",
           "schema" : {
             "type" : "object",
-            "required" : [ "email", "password", "fullname", "address" ],
+            "required" : [ "email", "password", "fullName", "address" ],
             "properties" : {
               "email" : {
                 "type" : "string",
@@ -278,7 +278,7 @@
                 "type" : "string",
                 "example" : "secret"
               },
-              "fullname" : {
+              "fullName" : {
                 "type" : "string",
                 "example" : "JoHn Doe"
               },
@@ -337,7 +337,7 @@
                 "type" : "string",
                 "example" : "secret"
               },
-              "fullname" : {
+              "fullName" : {
                 "type" : "string",
                 "example" : "JoHn Doe"
               },

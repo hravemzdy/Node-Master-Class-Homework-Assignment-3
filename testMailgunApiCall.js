@@ -23,7 +23,7 @@ var testArticle = {
 
 var testUser = {
   'email' : testEmail,
-  'fullname' : 'Homework Test',
+  'fullName' : 'Homework Test',
   'address' : 'Homework 1362, CZ'
 };
 

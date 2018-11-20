@@ -136,7 +136,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"fullname\" : \"{{user_fullname}}\", \n\t\"email\" : \"{{user_email}}\",\n\t\"password\" : \"{{password}}\",\n\t\"address\" : \"{{user_address}}\"\n}\n"
+							"raw": "{\n\t\"fullName\" : \"{{user_fullName}}\", \n\t\"email\" : \"{{user_email}}\",\n\t\"password\" : \"{{password}}\",\n\t\"address\" : \"{{user_address}}\"\n}\n"
 						},
 						"url": {
 							"raw": "https://virtserver.swaggerhub.com/MzdyHrave/Pizza2/1/users",
@@ -479,7 +479,7 @@
 		},
 		{
 			"id": "a6e3bbbd-2a2e-4ba2-8901-b1a5a74243bf",
-			"key": "user_fullname",
+			"key": "user_fullName",
 			"value": "Joe Doe",
 			"type": "string"
 		},
