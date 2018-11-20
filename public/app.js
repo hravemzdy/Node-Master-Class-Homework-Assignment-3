@@ -39,7 +39,7 @@ app.client.request = function(headers,path,method,queryStringObject,payload,call
        requestUrl+=queryKey+'='+queryStringObject[queryKey];
      }
   }
-
+ 
   // Form the http request as a JSON type
   var xhr = new XMLHttpRequest();
   xhr.open(method, requestUrl, true);
