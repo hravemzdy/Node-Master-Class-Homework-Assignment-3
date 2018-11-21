@@ -2,7 +2,7 @@
  * CSS Styles for Application
  *
  */
- 
+
 /* Resets */
 body,p,h1,h2,h3,h4,h5,h6,div,span,header,footer,img,a,a:hover,a:active,a:visited,table,tr,td,th,form,input,button,select,textarea{
   line-height: 100%;
@@ -276,18 +276,18 @@ td a, td a:hover, td a:active{
 
 /* Page specific styles for dashboard */
 
-#noChecksMessage td{
+#noCartMessage td{
   text-align: center;
   font-style: italic;
   font-size: 20px;
   padding: 20px;
 }
 
-#noChecksMessage{
+#noCartMessage{
   display: none;
 }
 
-#createCheckCTA{
+#createCartCTA{
   margin-top: 40px;
   display: none;
 }
