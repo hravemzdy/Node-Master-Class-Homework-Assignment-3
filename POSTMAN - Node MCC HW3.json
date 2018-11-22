@@ -418,9 +418,18 @@
 							{
 								"key": "token",
 								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
 							}
 						],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\" : {{user_email}}\n}"
+						},
 						"url": {
 							"raw": "http://{{test_api_path}}/checkout",
 							"protocol": "http",
@@ -463,55 +472,55 @@
 	],
 	"variable": [
 		{
-			"id": "6e05b6b3-c475-4f60-a83e-d260ff612a41",
+			"id": "eb75c4b8-8ea2-4a7a-9073-2f15f3d53d34",
 			"key": "token",
 			"value": "5fwgc9gvody9adkqqn3t",
 			"type": "string"
 		},
 		{
-			"id": "761258a0-cd50-4332-bcd0-eef2b9d304db",
+			"id": "b6a439ae-f948-4456-93b0-4df0a195b52f",
 			"key": "user_email",
 			"value": "customer@example.com",
 			"type": "string"
 		},
 		{
-			"id": "d6f36442-ca7a-469e-a829-3aa98866dc21",
+			"id": "163bc86b-dfc6-4325-9cd3-b77b46d59564",
 			"key": "password",
 			"value": "secret12345",
 			"type": "string"
 		},
 		{
-			"id": "a9ab6bf3-2bc6-446d-a328-8f2db8ddefac",
+			"id": "bf7d09d1-5267-4c56-9358-5a5ca7efe364",
 			"key": "user_fullname",
 			"value": "Joe Doe",
 			"type": "string"
 		},
 		{
-			"id": "8823bbf3-39e4-4e96-a5c2-99fbb1477df9",
+			"id": "60204309-2243-4a4a-beb4-db6667196ea6",
 			"key": "user_address",
 			"value": "Lost Paradise",
 			"type": "string"
 		},
 		{
-			"id": "fab2e697-beda-47a5-a3fb-c649e3c2d55d",
+			"id": "aaa79c62-9193-4bcd-8a33-8426827b9a86",
 			"key": "article_pizza",
 			"value": "100",
 			"type": "string"
 		},
 		{
-			"id": "a75cb0c8-6809-4451-8260-5922ab0288e9",
+			"id": "ef21e1b0-f4b8-47a8-8d28-1c47ab8378cc",
 			"key": "article_sweet",
 			"value": "500",
 			"type": "string"
 		},
 		{
-			"id": "dc20253b-d1c8-4f92-8c18-253a3db0b2d4",
+			"id": "1b6595a4-f0c0-4ffc-94c2-4e047989ca0f",
 			"key": "line_index",
 			"value": "1",
 			"type": "string"
 		},
 		{
-			"id": "b52929ed-2a30-4412-96d6-e65191e1a46d",
+			"id": "5c968557-916b-4113-bd2c-70533b42d994",
 			"key": "test_api_path",
 			"value": "localhost:3000/api",
 			"type": "string"

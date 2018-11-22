@@ -221,7 +221,62 @@ app.forms.loadAccountEditPage = function(){
   }
 };
 
-// Load the dashboard page specifically
+// Load the catalog page specifically
+app.forms.loadCatalogListPage = function(){
+  // Get the phone number from the current token, or log the user out if none is there
+  var email = app.lib.getValidStringOrDefault(app.config.sessionToken.email, false);
+  if(email){
+    // Fetch the user data
+    var queryStringObject = {
+      'email' : email
+    };
+    app.catalog.loadAllArticles(function(catalogItems){
+      if(catalogItems){
+        // Determine how many Catalog Itemss exist
+        if(catalogItems.length > 0){
+
+          var table = document.getElementById("catalogListTable");
+          var catalogIndex = 0;
+          // Show each created Cart Itemss as a new row in the table
+          catalogItems.forEach(function(article){
+            var tr = table.insertRow(-1);
+            tr.classList.add('catalogItemRow');
+            var td0 = tr.insertCell(0);
+            var td1 = tr.insertCell(1);
+            var td2 = tr.insertCell(2);
+            var td3 = tr.insertCell(3);
+            var td4 = tr.insertCell(4);
+            td0.innerHTML = article.id;
+            td0.classList.add('rowArticleId');
+            td1.innerHTML = article.name;
+            td2.innerHTML = article.mixtureEnglish + '<br><br>' + article.mixtureCzech;
+            td3.innerHTML = article.price + ' USD';
+            td3.classList.add('tableCellPrice');
+            if (article.id < 500){
+              td4.innerHTML = '<img class="sampleImage" src="public/samplePizza.png" alt="'+article.name+'" />';
+            }else {
+              td4.innerHTML = '<img class="sampleImage" src="public/sampleSweet.png" alt="'+article.name+'" />';
+            }
+            td4.classList.add('rowDetails');
+
+            catalogIndex++;
+          });
+
+          document.getElementById("gotoCartCTA").style.display = 'block';
+        } else {
+          // Show 'you have no Carts' message
+          document.getElementById("noCatalogMessage").style.display = 'table-row';
+        }
+      } else {
+        window.location = '/cart/all';
+      }
+    });
+  } else {
+    window.location = '/cart/all';
+  }
+};
+
+// Load the shopping cart page specifically
 app.forms.loadCartListPage = function(){
   // Get the phone number from the current token, or log the user out if none is there
   var email = app.lib.getValidStringOrDefault(app.config.sessionToken.email, false);
@@ -234,15 +289,16 @@ app.forms.loadCartListPage = function(){
       if(statusCode == 200){
 
         // Determine how many Cart Itemss the user has
-        var allCartItems = app.lib.getValidArrayOrEmpty(responsePayload.cartItems);
+        var objCartTotal = app.lib.getValidObjectOrDefault(responsePayload);
+        var allCartItems = app.lib.getValidArrayOrEmpty(objCartTotal.cartItems);
         if(allCartItems.length > 0){
 
+          var table = document.getElementById("cartListTable");
           var cartItemIndex = 0;
           // Show each created Cart Itemss as a new row in the table
           allCartItems.forEach(function(cartItem){
             // Get the data for the article
             // Make the Cart Items data into a table row
-            var table = document.getElementById("cartListTable");
             var tr = table.insertRow(-1);
             tr.classList.add('cartItemRow');
             var td0 = tr.insertCell(0);
@@ -251,26 +307,46 @@ app.forms.loadCartListPage = function(){
             var td3 = tr.insertCell(3);
             var td4 = tr.insertCell(4);
             td0.innerHTML = cartItem.id;
+            td0.classList.add('rowArticleId');
             td1.innerHTML = cartItem.name;
-            td2.innerHTML = cartItem.mixtureEnglish;
+            td2.innerHTML = cartItem.mixtureEnglish + '<br><br>' + cartItem.mixtureCzech;
             td3.innerHTML = cartItem.price;
-            td4.innerHTML = '<a href="/cart/edit?id='+cartItemIndex+'">View / Edit / Delete</a>';
+            td3.classList.add('tableCellPrice');
+            td4.innerHTML = '<a href="/cart/edit?index='+cartItemIndex+'">View / Edit / Delete</a>';
+            td4.classList.add('rowDetails');
 
             cartItemIndex++;
           });
+          var tr = table.insertRow(-1);
+          tr.id = 'totalMessage';
+          var td0 = tr.insertCell(0);
+          var td1 = tr.insertCell(1);
+          var td2 = tr.insertCell(2);
+          var td3 = tr.insertCell(3);
+          var td4 = tr.insertCell(4);
+          td0.innerHTML = 'Total';
+          td1.innerHTML = objCartTotal.totalCount;
+          td1.id = 'totalMessageCount';
+          td2.innerHTML = 'Total price';
+          td3.innerHTML = objCartTotal.totalPrice;
+          td3.id = 'totalMessagePrice';
+          td4.innerHTML = '';
 
           if(allCartItems.length < 5){
             // Show the createCart CTA
             document.getElementById("createCartCTA").style.display = 'block';
           }
+          // Show the ceckoutCart CTA
+          document.getElementById("checkoutCartCTA").style.display = 'block';
 
+          // Show 'you have no Carts' message
+          document.getElementById("totalMessage").style.display = 'table-row';
         } else {
           // Show 'you have no Carts' message
           document.getElementById("noCartMessage").style.display = 'table-row';
 
           // Show the createCart CTA
           document.getElementById("createCartCTA").style.display = 'block';
-
         }
       } else {
         // If the request comes back as something other than 200, log the user our (on the assumption that the api is temporarily down or the users token is bad)
@@ -366,6 +442,36 @@ app.forms.loadCartEditPage = function(){
               window.location = '/cart/all';
             }
           });
+        } else {
+          window.location = '/cart/all';
+        }
+      } else {
+        window.location = '/cart/all';
+      }
+    });
+  } else {
+    window.location = '/cart/all';
+  }
+}
+
+app.forms.loadCartCheckoutPage = function(){
+  var email = app.lib.getValidStringOrDefault(app.config.sessionToken.email, false);
+
+  if(email){
+    // Fetch the user data
+    var queryStringObject = {
+      'email' : email
+    };
+    app.client.request(undefined,'api/shopping','GET',queryStringObject,undefined,function(statusCode,responsePayload){
+      if(statusCode == 200){
+        var cartTotals = app.lib.getValidObjectOrDefault(responsePayload, false);
+        if (cartTotals) {
+          var hiddenPhoneInputs = document.querySelectorAll("input.hiddenEmailAddressInput");
+          for(var i = 0; i < hiddenPhoneInputs.length; i++){
+              hiddenPhoneInputs[i].value = email;
+          }
+          document.querySelector("#cartCheckout .displayTotalCountInput").value = cartTotals.totalCount;
+          document.querySelector("#cartCheckout .displayTotalPriceInput").value = cartTotals.totalPrice;
         } else {
           window.location = '/cart/all';
         }
@@ -490,6 +596,10 @@ app.bindForms = function(){
         if(document.querySelector("#"+formId+" .formSuccess")){
           document.querySelector("#"+formId+" .formSuccess").style.display = 'none';
         }
+        // Hide the success message (if it's currently shown due to a previous error)
+        if(document.querySelector("#"+formId+" .formDelayedSuccess")){
+          document.querySelector("#"+formId+" .formDelayedSuccess").style.display = 'none';
+        }
 
         // Turn the inputs into a payload
         var payload = {};
@@ -596,6 +706,10 @@ app.formResponseProcessor = function(formId,requestPayload,responsePayload){
     document.querySelector("#"+formId+" .formSuccess").style.display = 'block';
   }
 
+  var formsWithDelayedSuccessMessages = ['cartCheckout'];
+  if(formsWithDelayedSuccessMessages.indexOf(formId) > -1){
+    document.querySelector("#"+formId+" .formDelayedSuccess").style.display = 'block';
+  }
   // If the user just deleted their account, redirect them to the account-delete page
   if(formId == 'accountEdit3'){
     app.account.logUserOut(false);
@@ -612,6 +726,13 @@ app.formResponseProcessor = function(formId,requestPayload,responsePayload){
     window.location = '/cart/all';
   }
 
+  // If the user just deleted a Cart, redirect them to the dashboard
+  if(formId == 'cartCheckout'){
+    setTimeout(function () {
+      //will redirect to cart list page
+      window.location = '/cart/all';
+    }, 5000); //will call the function after 5 secs.
+  }
 };
 
 // Load data on the page
@@ -625,11 +746,15 @@ app.loadDataOnPage = function(){
     app.forms.loadAccountEditPage();
   }
 
-  // Logic for dashboard page
+  // Logic for catalog page
+  if(primaryClass == 'catalogList'){
+    app.forms.loadCatalogListPage();
+  }
+
+  // Logic for shopping cart page
   if(primaryClass == 'cartList'){
     app.forms.loadCartListPage();
   }
-
   // Logic for Cart details page
   if(primaryClass == 'cartAdd'){
     app.forms.loadCartAddPage();
@@ -637,6 +762,10 @@ app.loadDataOnPage = function(){
   // Logic for Cart details page
   if(primaryClass == 'cartEdit'){
     app.forms.loadCartEditPage();
+  }
+  // Logic for Cart checkout page
+  if(primaryClass == 'cartCheckout'){
+    app.forms.loadCartCheckoutPage();
   }
 };
 

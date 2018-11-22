@@ -201,6 +201,20 @@ body.index .blurb{
   border-width: 2px;
   border-style: solid;
 }
+.formDelayedSuccess{
+  display: none;
+  background-color: #217844;
+  font-style: italic;
+  font-size: 20px;
+  color: #fff;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin: 0 0 15px 0;
+  text-align: center;
+  border-color: #35c06d;
+  border-width: 2px;
+  border-style: solid;
+}
 
 hr {
   margin: 30px 0;
@@ -287,7 +301,73 @@ td a, td a:hover, td a:active{
   display: none;
 }
 
+#totalMessage td{
+  text-transform: uppercase;
+  font-weight: bold;
+  padding: 10px;
+  border-color: #000;
+  border-style: dotted;
+  padding: 10px;
+  margin: 0 0 10px 0;
+  background-color: #efefef;
+  text-align: left;
+}
+
+td.tableCellPrice {
+  text-align: center;
+  padding: 10px;
+}
+
+td.rowArticleId {
+  text-align: center;
+  padding: 10px;
+}
+
+td.rowDetails {
+  text-align: center;
+  padding: 10px;
+}
+
+td#totalMessageCount {
+  text-align: center;
+  padding: 10px;
+}
+
+td#totalMessagePrice {
+  text-align: center;
+  padding: 10px;
+}
+
+#totalMessage{
+  display: none;
+}
+
+#noCatalogMessage td{
+  text-align: center;
+  font-style: italic;
+  font-size: 20px;
+  padding: 20px;
+}
+
+img.sampleImage {
+  width: 50px;
+}
+
+#noCatalogMessage{
+  display: none;
+}
+
 #createCartCTA{
+  margin-top: 40px;
+  display: none;
+}
+
+#gotoCartCTA{
+  margin-top: 40px;
+  display: none;
+}
+
+#checkoutCartCTA{
   margin-top: 40px;
   display: none;
 }
