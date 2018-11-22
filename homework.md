@@ -19,7 +19,14 @@
 10. Add Total count and Total price to shopping cart
 
 ---
+11. Add api/orders route for GET ALL, GET ID
 
-11. Add payment details to checkout pages (faked card number, delivery)
+12. Add lastOrder to userData -> last open order expire with successful payment
 
-12. Add menu/page for listing of user's orders/payments and api routes
+13. Break service.placeOrder to placeInvoice and sendPayment and notifyByEmail
+
+14. Add payment details to checkout pages (faked card number, delivery)
+
+15. Add Orders page with table
+
+15. Add menu/page for listing of user's orders/payments and api routes
