@@ -20,4 +20,6 @@
 
 ---
 
-11. Add menu/page for listing of user's orders/payments and api routes
+11. Add payment details to checkout pages (faked card number, delivery)
+
+12. Add menu/page for listing of user's orders/payments and api routes
