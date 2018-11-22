@@ -38,6 +38,16 @@ app.lib.getValidArrayOrEmpty = function(data) {
     return typeof(data) == 'object' && data instanceof Array  ? data : [];
 };
 
+app.lib.getValidJsonOrFalse = function(payload) {
+  var parsedResponse = false;
+  try{
+    parsedResponse = JSON.parse(payload);
+  } catch(e){
+    return false;
+  }
+  return parsedResponse;
+};
+
 app.lib.getValueOfElement = function(element, payloadValue){
   // Determine class of element and set value accordingly
   var classOfElement = app.lib.getNonEmptyStringOrEmpty(element.classList.value);
@@ -65,6 +75,23 @@ app.lib.getValueOfElement = function(element, payloadValue){
     payloadReturn = valueOfElement;
   }
   return payloadReturn;
+};
+
+app.catalog = {};
+
+// Get all articles from catalog offer
+app.catalog.loadAllArticles = function(callback){
+  var queryStringObject = {
+  };
+  app.client.request(undefined,'api/offer','GET',queryStringObject,undefined,function(statusCode,responsePayload){
+    if(statusCode == 200){
+      // Determine how many Catalog Itemss exist
+      var catalogItems = app.lib.getValidArrayOrEmpty(responsePayload);
+      callback(catalogItems);
+    } else {
+      callback(false);
+    }
+  });
 };
 
 app.account = {};
@@ -259,13 +286,10 @@ app.forms.loadCartAddPage = function(){
   // Get the phone number from the current token, or log the user out if none is there
   var email = app.lib.getValidStringOrDefault(app.config.sessionToken.email, false);
   if(email){
-    // Fetch the user data
-    var queryStringObject = {
-    };
-    app.client.request(undefined,'api/offer','GET',queryStringObject,undefined,function(statusCode,responsePayload){
-      if(statusCode == 200){
+    // Fetch the catalog data
+    app.catalog.loadAllArticles(function(catalogItems){
+      if(catalogItems){
         // Determine how many Catalog Itemss exist
-        var catalogItems = app.lib.getValidArrayOrEmpty(responsePayload);
         if(catalogItems.length > 0){
 
           var catalogIndex = 0;
@@ -278,11 +302,11 @@ app.forms.loadCartAddPage = function(){
             optionSelect.appendChild(option);
             catalogIndex++;
           });
-          // Put the hidden phone field into both forms
-          var hiddenPhoneInputs = document.querySelectorAll("input.hiddenEmailAddressInput");
-          for(var i = 0; i < hiddenPhoneInputs.length; i++){
-              hiddenPhoneInputs[i].value = email;
-          }
+        }
+        // Put the hidden Email Address field into both forms
+        var hiddenEmailAddressInputs = document.querySelectorAll("input.hiddenEmailAddressInput");
+        for(var i = 0; i < hiddenEmailAddressInputs.length; i++){
+            hiddenEmailAddressInputs[i].value = email;
         }
       } else {
         // If the request comes back as something other than 200, log the user our (on the assumption that the api is temporarily down or the users token is bad)
@@ -291,6 +315,66 @@ app.forms.loadCartAddPage = function(){
     });
   } else {
     app.account.logUserOut();
+  }
+}
+
+app.forms.loadCartEditPage = function(){
+  var refIndex = window.location.href.split('=')[1];
+  var index = app.lib.getValidStringOrDefault(refIndex, false);
+  var email = app.lib.getValidStringOrDefault(app.config.sessionToken.email, false);
+
+  if(index && email){
+    // Fetch the user data
+    var queryStringObject = {
+      'email' : email
+    };
+    app.client.request(undefined,'api/shopping','GET',queryStringObject,undefined,function(statusCode,responsePayload){
+      if(statusCode == 200){
+        var allCartItems = app.lib.getValidArrayOrEmpty(responsePayload.cartItems);
+        var cartItem = (allCartItems.length > index) ? allCartItems[index] : false;
+        if (cartItem) {
+          // Fetch the catalog data
+          app.catalog.loadAllArticles(function(catalogItems){
+            if(catalogItems){
+              // Determine how many Catalog Itemss exist
+              if(catalogItems.length > 0){
+
+                var catalogIndex = 0;
+                // Show each created Cart Itemss as a new row in the table
+                catalogItems.forEach(function(article){
+                  var optionSelect = document.getElementById("articleSelect");
+                  var option = document.createElement('option');
+                  option.value = article.id;
+                  option.innerHTML = article.name + ' (' + article.price + ' USD)';
+                  optionSelect.appendChild(option);
+                  if (cartItem.id==article.id){
+                    optionSelect.selectedIndex = catalogIndex;
+                  }
+                  catalogIndex++;
+                });
+              }
+              // Put the hidden Email Address field into both forms
+              var hiddenEmailAddressInputs = document.querySelectorAll("input.hiddenEmailAddressInput");
+              for(var i = 0; i < hiddenEmailAddressInputs.length; i++){
+                hiddenEmailAddressInputs[i].value = email;
+              }
+              var hiddenCartLineIndexInputs = document.querySelectorAll("input.hiddenCartLineIndexInput");
+              for(var i = 0; i < hiddenCartLineIndexInputs.length; i++){
+                hiddenCartLineIndexInputs[i].value = index;
+              }
+            } else {
+              window.location = '/cart/all';
+            }
+          });
+        } else {
+          window.location = '/cart/all';
+        }
+      } else {
+        window.location = '/cart/all';
+      }
+    });
+  } else {
+    window.location = '/cart/all';
   }
 }
 
@@ -348,14 +432,9 @@ app.client.request = function(headers,path,method,queryStringObject,payload,call
 
         // Callback if requested
         if(callback != null){
+          var parsedResponse = app.lib.getValidJsonOrFalse(responseReturned);
 
-          try{
-            var parsedResponse = JSON.parse(responseReturned);
-            callback(statusCode,parsedResponse);
-          } catch(e){
-            callback(statusCode,false);
-          }
-
+          callback(statusCode,parsedResponse);
         }
       }
   }
@@ -419,6 +498,7 @@ app.bindForms = function(){
 
           if(elements[i].type !== 'submit'){
             var nameOfElement = elements[i].name;
+            var valueOfElement = elements[i].value;
 
             // Override the method of the form if the input's name is _method
             if(nameOfElement == '_method'){
@@ -435,10 +515,13 @@ app.bindForms = function(){
               if(nameOfElement == 'article'){
                 nameOfElement = 'id';
               }
+
               payload[nameOfElement] = app.lib.getValueOfElement(elements[i], payload[nameOfElement]);
             }
           }
         }
+
+        console.log ('PAYLOAD REQ: ', payload);
 
         // If the method is DELETE, the payload should be a queryStringObject instead
         var queryStringObject = method == 'DELETE' ? payload : {};
@@ -553,7 +636,7 @@ app.loadDataOnPage = function(){
   }
   // Logic for Cart details page
   if(primaryClass == 'cartEdit'){
-//    app.forms.loadCartEditPage();
+    app.forms.loadCartEditPage();
   }
 };
 

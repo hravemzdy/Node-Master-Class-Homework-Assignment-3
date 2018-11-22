@@ -23,3 +23,6 @@ It is time to build a simple frontend for the Pizza-Delivery API you created in 
 4. Place an order (with fake credit card credentials), and receive an email receipt
 
 This is an open-ended assignment. You can take any direction you'd like to go with it, as long as your project includes the requirements. It can include anything else you wish as well.
+
+## POSTMAN documentation
+https://documenter.getpostman.com/view/2851355/RzZAme6k

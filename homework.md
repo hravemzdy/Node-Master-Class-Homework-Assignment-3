@@ -10,14 +10,14 @@
 
 6. Add page with shopping cart
 
----
-
 7. Add page with detail of article to edit and delete
 
-8. Add checkout button to shopping cart
+8. Add user detail page to edit and delete
 
-9. Add Total count and Total price to shopping cart
+---
 
-10. Add user detail page to edit and delete
+9. Add checkout button to shopping cart
+
+10. Add Total count and Total price to shopping cart
 
 11. Add menu/page for listing of user's orders/payments
