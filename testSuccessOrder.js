@@ -32,11 +32,11 @@ _user_service.create(testUserEmail,testUserPassword,testUserfullName,testUserAdd
           console.log('TOKEN SERVICE STATUS: ', err);
           if (err==200){
             console.log('TOKEN CREATED: ', tokenData);
-            _shopping_service.addToCart('100',testUserEmail,function(err,userCart){
+            _shopping_service.addToCart(testUserEmail,'100',function(err,userCart){
               console.log('CART SERVICE STATUS: ', err);
               if (err==200){
                   console.log('ARTICLE ADDED: ', userCart);
-                  _shopping_service.addToCart('105',testUserEmail,function(err,userCart){
+                  _shopping_service.addToCart(testUserEmail,'105',function(err,userCart){
                     console.log('CART SERVICE STATUS: ', err);
                     if (err==200){
                       console.log('ARTICLE ADDED: ', userCart);
