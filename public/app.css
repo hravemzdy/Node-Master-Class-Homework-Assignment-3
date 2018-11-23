@@ -166,6 +166,35 @@ body.index .blurb{
   background-color: #c83737 !important;
 }
 
+.wctaWrapper{
+  text-align: center;
+}
+
+.wcta,a.wcta:hover,a.wcta:active,a.wcta:visited,button.wcta:hover,button.wcta:active,button.wcta:visited{
+  background-color: #1a1a1a;
+  color: #fff;
+  border-radius: 10px;
+  text-transform: uppercase;
+  font-weight: bold;
+  text-align: center;
+  display: inline-block;
+  padding: 15px;
+  width: 200px;
+  cursor: pointer;
+}
+
+.wcta.blue{
+  background-color: #214478 !important;
+}
+
+.wcta.green{
+  background-color: #217844 !important;
+}
+
+.wcta.red{
+  background-color: #c83737 !important;
+}
+
 .warning{
   font-style: italic;
   color: #c83737;
