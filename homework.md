@@ -18,7 +18,6 @@
 
 10. Add Total count and Total price to shopping cart
 
----
 11. Add api/orders route for GET ALL, GET ID
 
 12. Add lastOrder to userData -> last open order expire with successful payment
