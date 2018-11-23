@@ -38,6 +38,10 @@ app.lib.getValidArrayOrEmpty = function(data) {
     return typeof(data) == 'object' && data instanceof Array  ? data : [];
 };
 
+app.lib.getValidBooleanOrFalse = function(data) {
+    return typeof(data) == 'boolean' && data == true ? true : false;
+};
+
 app.lib.getValidJsonOrFalse = function(payload) {
   var parsedResponse = false;
   try{
@@ -206,9 +210,9 @@ app.forms.loadAccountEditPage = function(){
         document.querySelector("#accountEdit1 .displayEmailInput").value = responsePayload.email;
 
         // Put the hidden phone field into both forms
-        var hiddenPhoneInputs = document.querySelectorAll("input.hiddenEmailAddressInput");
-        for(var i = 0; i < hiddenPhoneInputs.length; i++){
-            hiddenPhoneInputs[i].value = responsePayload.email;
+        var hiddenEmailAddressInputs = document.querySelectorAll("input.hiddenEmailAddressInput");
+        for(var i = 0; i < hiddenEmailAddressInputs.length; i++){
+            hiddenEmailAddressInputs[i].value = responsePayload.email;
         }
 
       } else {
@@ -220,6 +224,69 @@ app.forms.loadAccountEditPage = function(){
     app.account.logUserOut();
   }
 };
+
+app.forms.loadAccountHistoryPage = function(){
+  var email = app.lib.getValidStringOrDefault(app.config.sessionToken.email, false);
+
+  if(email){
+    // Fetch the user data
+    var queryStringObject = {
+      'email' : email
+    };
+    app.client.request(undefined,'api/orders','GET',queryStringObject,undefined,function(statusCode,responsePayload){
+      if(statusCode == 200){
+        var ordersHistory = app.lib.getValidArrayOrEmpty(responsePayload);
+        // Determine how many orders the user has
+        if(ordersHistory.length > 0){
+          var table = document.getElementById("orderListTable");
+          var ordersItemIndex = 0;
+          // Sort history by date descending
+          ordersHistory.sort(function(a,b){return -1*(new Date(a.orderDate) - new Date(b.orderDate))});
+          // Show each created Cart Itemss as a new row in the table
+          ordersHistory.forEach(function(orderData){
+            // Get the data for the order
+            var orderItems = app.lib.getValidArrayOrEmpty(orderData.orderItems);
+            // Make the Cart Items data into a table row
+            var tr = table.insertRow(-1);
+            tr.classList.add('orderItemRow');
+            var td0 = tr.insertCell(0);
+            var td1 = tr.insertCell(1);
+            var td2 = tr.insertCell(2);
+            var td3 = tr.insertCell(3);
+            var td4 = tr.insertCell(4);
+            var td5 = tr.insertCell(5);
+            td0.innerHTML = orderData.orderNumber;
+            td0.classList.add('rowArticleId');
+            td1.innerHTML = new Date(orderData.orderDate).toLocaleDateString("cz-CZ");
+            td1.classList.add('rowArticleId');
+            td3.innerHTML = orderData.totalCharge;
+            td3.classList.add('tableCellPrice');
+            td4.innerHTML = app.lib.getValidBooleanOrFalse(orderData.invoicePaid) ? 'PAID' : '';
+            td4.classList.add('tableCellPrice');
+            td5.innerHTML = app.lib.getValidBooleanOrFalse(orderData.invoiceSent) ? 'SENT' : '';
+            td5.classList.add('tableCellPrice');
+
+            td2.innerHTML = '';
+            orderItems.forEach(function(orderItem){
+              // Get the data for the order item
+              td2.innerHTML += '<p>' + orderItem.name + '</p>';
+            });
+
+            ordersItemIndex++;
+          });
+          document.getElementById("gotoCartCTA").style.display = 'block';
+        } else {
+          // Show 'you have no Carts' message
+          document.getElementById("noHistoryMessage").style.display = 'table-row';
+        }
+      } else {
+        app.account.logUserOut();
+      }
+    });
+  } else {
+    app.account.logUserOut();
+  }
+}
 
 // Load the catalog page specifically
 app.forms.loadCatalogListPage = function(){
@@ -332,6 +399,9 @@ app.forms.loadCartListPage = function(){
           td3.id = 'totalMessagePrice';
           td4.innerHTML = '';
 
+          // Show total row
+          tr.style.display = 'table-row';
+
           if(allCartItems.length < 5){
             // Show the createCart CTA
             document.getElementById("createCartCTA").style.display = 'block';
@@ -339,8 +409,6 @@ app.forms.loadCartListPage = function(){
           // Show the ceckoutCart CTA
           document.getElementById("checkoutCartCTA").style.display = 'block';
 
-          // Show 'you have no Carts' message
-          document.getElementById("totalMessage").style.display = 'table-row';
         } else {
           // Show 'you have no Carts' message
           document.getElementById("noCartMessage").style.display = 'table-row';
@@ -464,14 +532,51 @@ app.forms.loadCartCheckoutPage = function(){
     };
     app.client.request(undefined,'api/shopping','GET',queryStringObject,undefined,function(statusCode,responsePayload){
       if(statusCode == 200){
-        var cartTotals = app.lib.getValidObjectOrDefault(responsePayload, false);
-        if (cartTotals) {
-          var hiddenPhoneInputs = document.querySelectorAll("input.hiddenEmailAddressInput");
-          for(var i = 0; i < hiddenPhoneInputs.length; i++){
-              hiddenPhoneInputs[i].value = email;
+        var hiddenEmailAddressInputs = document.querySelectorAll("input.hiddenEmailAddressInput");
+        for(var i = 0; i < hiddenEmailAddressInputs.length; i++){
+            hiddenEmailAddressInputs[i].value = email;
+        }
+        var objCartTotal = app.lib.getValidObjectOrDefault(responsePayload, false);
+        if (objCartTotal) {
+          // Determine how many Cart Itemss the user has
+          var allCartItems = app.lib.getValidArrayOrEmpty(objCartTotal.cartItems);
+          if(allCartItems.length > 0){
+
+            var table = document.getElementById("checkoutTable");
+            var cartItemIndex = 0;
+            // Show each created Cart Itemss as a new row in the table
+            allCartItems.forEach(function(cartItem){
+              // Get the data for the article
+              // Make the Cart Items data into a table row
+              var tr = table.insertRow(-1);
+              tr.classList.add('checkoutRow');
+              var td0 = tr.insertCell(0);
+              var td1 = tr.insertCell(1);
+              var td2 = tr.insertCell(2);
+              td0.innerHTML = cartItem.id;
+              td0.classList.add('rowArticleId');
+              td1.innerHTML  = '<span><h3>' + cartItem.name + '</h3>';
+              td1.innerHTML += '<p>' + cartItem.mixtureEnglish + '</p><br/><br/>';
+              td1.innerHTML += '<p>' + cartItem.mixtureCzech + '</p><br/><br/></span>';
+              td2.innerHTML = cartItem.price;
+              td2.classList.add('tableCellPrice');
+
+              cartItemIndex++;
+            });
+            var tr = table.insertRow(-1);
+            tr.id = 'totalMessage';
+            var td0 = tr.insertCell(0);
+            var td1 = tr.insertCell(1);
+            var td2 = tr.insertCell(2);
+            td1.innerHTML  = 'Total: ' + objCartTotal.totalCount + '&nbsp&nbsp&nbsp&nbsp&nbsp';
+            td1.innerHTML += 'Total price: ';
+            td1.id = 'totalMessageLabel';
+            td2.innerHTML  = objCartTotal.totalPrice;
+            td2.id = 'totalMessagePrice';
+
+            // Show total row
+            tr.style.display = 'table-row';
           }
-          document.querySelector("#cartCheckout .displayTotalCountInput").value = cartTotals.totalCount;
-          document.querySelector("#cartCheckout .displayTotalPriceInput").value = cartTotals.totalPrice;
         } else {
           window.location = '/cart/all';
         }
@@ -481,6 +586,67 @@ app.forms.loadCartCheckoutPage = function(){
     });
   } else {
     window.location = '/cart/all';
+  }
+}
+
+app.forms.loadCartPaymentPage = function(){
+  var email = app.lib.getValidStringOrDefault(app.config.sessionToken.email, false);
+
+  if(email){
+    // Fetch the user data
+    var queryStringObject = {
+      'email' : email,
+      'id' : 'last'
+    };
+    app.client.request(undefined,'api/orders','GET',queryStringObject,undefined,function(statusCode,responsePayload){
+      if(statusCode == 200){
+        var hiddenEmailAddressInputs = document.querySelectorAll("input.hiddenEmailAddressInput");
+        for(var i = 0; i < hiddenEmailAddressInputs.length; i++){
+            hiddenEmailAddressInputs[i].value = email;
+        }
+        var orderData = app.lib.getValidObjectOrDefault(responsePayload, false);
+        if (orderData) {
+          var hiddenOrderNumberInputs = document.querySelectorAll("input.hiddenOrderNumberInput");
+          for(var i = 0; i < hiddenOrderNumberInputs.length; i++){
+              hiddenOrderNumberInputs[i].value = orderData.orderNumber;
+          }
+          var cellOrderNumber = document.getElementById("cellOrderNumber");
+          if (cellOrderNumber) {
+            cellOrderNumber.innerHTML = orderData.orderNumber;
+          }
+          var cellOrderDate = document.getElementById("cellOrderDate");
+          if (cellOrderDate) {
+            cellOrderDate.innerHTML = new Date(orderData.orderDate).toLocaleDateString("cz-CZ");
+          }
+          var cellFullName = document.getElementById("cellFullName");
+          if (cellFullName) {
+            cellFullName.innerHTML = orderData.customerName;
+          }
+          var cellToAddress = document.getElementById("cellToAddress");
+          if (cellToAddress) {
+            cellToAddress.innerHTML = orderData.shipToAddress;
+          }
+          var cellCardNumb = document.getElementById("cellCardNumb");
+          if (cellCardNumb) {
+            cellCardNumb.innerHTML = '5200-8282-8282-8210';
+          }
+          var cellPayment = document.getElementById("cellPayment");
+          if (cellPayment) {
+            cellPayment.innerHTML = orderData.totalCharge + ' USD';
+          }
+          var cellEmailAdd = document.getElementById("cellEmailAdd");
+          if (cellEmailAdd) {
+            cellEmailAdd.innerHTML = orderData.customerEmail;
+          }
+        } else {
+          window.location = '/account/history';
+        }
+      } else {
+        window.location = '/account/history';
+      }
+    });
+  } else {
+    window.location = '/account/history';
   }
 }
 
@@ -622,7 +788,10 @@ app.bindForms = function(){
               if(nameOfElement == 'uid'){
                 nameOfElement = 'id';
               }
-              if(nameOfElement == 'article'){
+              if(nameOfElement == 'articleId'){
+                nameOfElement = 'id';
+              }
+              if(nameOfElement == 'orderId'){
                 nameOfElement = 'id';
               }
 
@@ -630,8 +799,6 @@ app.bindForms = function(){
             }
           }
         }
-
-        console.log ('PAYLOAD REQ: ', payload);
 
         // If the method is DELETE, the payload should be a queryStringObject instead
         var queryStringObject = method == 'DELETE' ? payload : {};
@@ -706,7 +873,7 @@ app.formResponseProcessor = function(formId,requestPayload,responsePayload){
     document.querySelector("#"+formId+" .formSuccess").style.display = 'block';
   }
 
-  var formsWithDelayedSuccessMessages = ['cartCheckout'];
+  var formsWithDelayedSuccessMessages = ['cartPayment'];
   if(formsWithDelayedSuccessMessages.indexOf(formId) > -1){
     document.querySelector("#"+formId+" .formDelayedSuccess").style.display = 'block';
   }
@@ -726,11 +893,16 @@ app.formResponseProcessor = function(formId,requestPayload,responsePayload){
     window.location = '/cart/all';
   }
 
-  // If the user just deleted a Cart, redirect them to the dashboard
+  // If the user just placed order, redirect them to the payment page
   if(formId == 'cartCheckout'){
+    window.location = '/cart/payment';
+  }
+
+  // If the user just sent the payment, redirect them to the orders view
+  if(formId == 'cartPayment'){
     setTimeout(function () {
       //will redirect to cart list page
-      window.location = '/cart/all';
+      window.location = '/account/history';
     }, 5000); //will call the function after 5 secs.
   }
 };
@@ -746,6 +918,11 @@ app.loadDataOnPage = function(){
     app.forms.loadAccountEditPage();
   }
 
+  // Logic for account history page
+  if(primaryClass == 'accountHistory'){
+    app.forms.loadAccountHistoryPage();
+  }
+
   // Logic for catalog page
   if(primaryClass == 'catalogList'){
     app.forms.loadCatalogListPage();
@@ -755,17 +932,25 @@ app.loadDataOnPage = function(){
   if(primaryClass == 'cartList'){
     app.forms.loadCartListPage();
   }
+
   // Logic for Cart details page
   if(primaryClass == 'cartAdd'){
     app.forms.loadCartAddPage();
   }
+
   // Logic for Cart details page
   if(primaryClass == 'cartEdit'){
     app.forms.loadCartEditPage();
   }
+
   // Logic for Cart checkout page
   if(primaryClass == 'cartCheckout'){
     app.forms.loadCartCheckoutPage();
+  }
+
+  // Logic for Cart payment page
+  if(primaryClass == 'cartPayment'){
+    app.forms.loadCartPaymentPage();
   }
 };
 
