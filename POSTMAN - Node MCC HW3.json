@@ -321,7 +321,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{test_api_path}}/shopping?email={{user_email}}",
+							"raw": "http://{{test_api_path}}/shopping?email={{user_email}}&index={{line_index}}",
 							"protocol": "http",
 							"host": [
 								"{{test_api_path}}"
@@ -333,6 +333,10 @@
 								{
 									"key": "email",
 									"value": "{{user_email}}"
+								},
+								{
+									"key": "index",
+									"value": "{{line_index}}"
 								}
 							]
 						},
@@ -408,10 +412,110 @@
 			"description": "Folder for shopping"
 		},
 		{
+			"name": "orders",
+			"item": [
+				{
+					"name": "Create the order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\" : {{user_email}}\n}"
+						},
+						"url": {
+							"raw": "http://{{test_api_path}}/orders",
+							"protocol": "http",
+							"host": [
+								"{{test_api_path}}"
+							],
+							"path": [
+								"orders"
+							]
+						},
+						"description": "Add item to shopping cart"
+					},
+					"response": []
+				},
+				{
+					"name": "Get all items in shopping cart",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://{{test_api_path}}/orders?email={{user_email}}&id={{order_id}}",
+							"protocol": "http",
+							"host": [
+								"{{test_api_path}}"
+							],
+							"path": [
+								"orders"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "{{user_email}}"
+								},
+								{
+									"key": "id",
+									"value": "{{order_id}}"
+								}
+							]
+						},
+						"description": "Get itens in shopping cart"
+					},
+					"response": []
+				}
+			],
+			"description": "Folder for orders",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4350270f-0661-4d63-9f61-74d5cf1d0fed",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "4d1258e8-ef0b-401c-9527-69a3962d1279",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
 			"name": "checkout",
 			"item": [
 				{
-					"name": "Checkout and place order with payment",
+					"name": "Checkout and place order",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -446,6 +550,68 @@
 				}
 			],
 			"description": "Folder for checkout"
+		},
+		{
+			"name": "payment",
+			"item": [
+				{
+					"name": "Send payment for order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\" : {{user_email}},\n\t\"id\" : {{order_id}}\n}"
+						},
+						"url": {
+							"raw": "http://{{test_api_path}}/checkout",
+							"protocol": "http",
+							"host": [
+								"{{test_api_path}}"
+							],
+							"path": [
+								"checkout"
+							]
+						},
+						"description": "place the order based on content of user's shopping cart"
+					},
+					"response": []
+				}
+			],
+			"description": "Folder for payment",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "16527b24-75f7-4527-bb82-a8b0a9cc7f9e",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "46104967-c3d0-4e89-955c-43c71ad31d9b",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
 		}
 	],
 	"event": [
@@ -472,55 +638,61 @@
 	],
 	"variable": [
 		{
-			"id": "eb75c4b8-8ea2-4a7a-9073-2f15f3d53d34",
+			"id": "c68ae4dc-8bf1-41e2-8e25-c443b476c2fe",
 			"key": "token",
 			"value": "5fwgc9gvody9adkqqn3t",
 			"type": "string"
 		},
 		{
-			"id": "b6a439ae-f948-4456-93b0-4df0a195b52f",
+			"id": "3c6645dc-e527-476f-9250-4caa9a08e966",
 			"key": "user_email",
 			"value": "customer@example.com",
 			"type": "string"
 		},
 		{
-			"id": "163bc86b-dfc6-4325-9cd3-b77b46d59564",
+			"id": "f2ee1461-7f04-4cf9-a797-9ec4bc71a685",
 			"key": "password",
 			"value": "secret12345",
 			"type": "string"
 		},
 		{
-			"id": "bf7d09d1-5267-4c56-9358-5a5ca7efe364",
+			"id": "96ecb5d4-3ee8-4a29-af96-fe91a025094a",
 			"key": "user_fullname",
 			"value": "Joe Doe",
 			"type": "string"
 		},
 		{
-			"id": "60204309-2243-4a4a-beb4-db6667196ea6",
+			"id": "3f83a809-21b5-4ed3-8408-b3a42ed975ea",
 			"key": "user_address",
 			"value": "Lost Paradise",
 			"type": "string"
 		},
 		{
-			"id": "aaa79c62-9193-4bcd-8a33-8426827b9a86",
+			"id": "cab35053-12aa-407c-8b44-c37bc2e16101",
 			"key": "article_pizza",
 			"value": "100",
 			"type": "string"
 		},
 		{
-			"id": "ef21e1b0-f4b8-47a8-8d28-1c47ab8378cc",
+			"id": "8094b6ac-4bfb-4a76-993f-e87556b40ab1",
 			"key": "article_sweet",
 			"value": "500",
 			"type": "string"
 		},
 		{
-			"id": "1b6595a4-f0c0-4ffc-94c2-4e047989ca0f",
+			"id": "68998c8f-2f8f-4e59-bd87-b7e15ac0b809",
 			"key": "line_index",
 			"value": "1",
 			"type": "string"
 		},
 		{
-			"id": "5c968557-916b-4113-bd2c-70533b42d994",
+			"id": "5ae23462-a54e-4f4d-87f1-484019d5c955",
+			"key": "order_id",
+			"value": "5fwgc9gvody9adkqqn3t",
+			"type": "string"
+		},
+		{
+			"id": "d6d8670b-64ee-431e-85fd-40d1be8b4a8f",
 			"key": "test_api_path",
 			"value": "localhost:3000/api",
 			"type": "string"
