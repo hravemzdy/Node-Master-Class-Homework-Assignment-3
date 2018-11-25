@@ -8,7 +8,10 @@ var app = {};
 
 // Config
 app.config = {
-  'sessionToken' : false
+  'sessionToken' : false,
+  'stripeSite' : 'PIZZA delivery',
+  'stripeToken' : 'pk_test_key',
+  'stripeImage' : 'public/logo.png'
 };
 
 // Helpers functions for client
@@ -40,6 +43,10 @@ app.lib.getValidArrayOrEmpty = function(data) {
 
 app.lib.getValidBooleanOrFalse = function(data) {
     return typeof(data) == 'boolean' && data == true ? true : false;
+};
+
+app.lib.getValidNumberOrZero = function(data) {
+    return typeof(data) == 'number' && data % 1 == 0 ? data : 0;
 };
 
 app.lib.getValidJsonOrFalse = function(payload) {
@@ -755,6 +762,8 @@ app.bindForms = function(){
         var path = this.action;
         var method = this.method.toUpperCase();
 
+        var submitButton = document.querySelector("#"+formId+" button[type='submit']");
+
         // Hide the error message (if it's currently shown due to a previous error)
         document.querySelector("#"+formId+" .formError").style.display = 'none';
 
@@ -804,7 +813,8 @@ app.bindForms = function(){
         var queryStringObject = method == 'DELETE' ? payload : {};
 
         // Call the API
-        app.client.request(undefined,path,method,queryStringObject,payload,function(statusCode,responsePayload){
+        app.formClientRequest(formId,submitButton,undefined,path,method,queryStringObject,payload,function(statusCode,responsePayload){
+
           // Display an error on the form if needed
           if(statusCode !== 200){
 
@@ -830,6 +840,56 @@ app.bindForms = function(){
         });
       });
     }
+  }
+};
+
+app.formClientRequest = function(formId,submitButton,headers,path,method,queryStringObject,payload,callback){
+  if (formId == 'cartPayment') {
+    var queryStringCart = {
+      'email' : app.lib.getValidStringOrDefault(payload.email, ''),
+      'id' : app.lib.getValidStringOrDefault(payload.id, '')
+    };
+    app.client.request(undefined,'api/orders','GET',queryStringCart,undefined,function(statusCode,responsePayload){
+      if(statusCode == 200){
+        var paymentButton = submitButton;
+
+        var orderData = app.lib.getValidObjectOrDefault(responsePayload, false);
+        if (orderData) {
+          var stripeHandler = StripeCheckout.configure({
+            'key' : app.config.stripeToken,
+            'image' : app.config.stripeImage,
+            'locale' : 'auto',
+            'email' : app.config.sessionToken.email,
+            'token' : function(token) {
+              // Disable submit button
+              paymentButton.setAttribute('disabled', 'true');
+
+              app.client.request(headers,path,method,queryStringObject,payload,function(statusCode,responsePayload){
+                if (statusCode == 200) {
+                  callback(statusCode,responsePayload);
+                } else {
+                  // Enable submit button
+                  paymentButton.removeAttribute('disabled');
+                  callback(statusCode,responsePayload);
+                }
+              });
+            }
+          });
+          stripeHandler.open({
+            'name' : app.config.stripeSite,
+            'amount' : app.lib.getValidNumberOrZero(orderData.totalCharge) * 100
+          });
+        } else {
+          callback(500, "Error getting order data.")
+        }
+      }else {
+        callback(statusCode,responsePayload);
+      }
+    });
+  } else {
+    app.client.request(headers,path,method,queryStringObject,payload,function(statusCode,responsePayload){
+      callback(statusCode,responsePayload);
+    });
   }
 };
 
