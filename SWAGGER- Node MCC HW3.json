@@ -1,0 +1,611 @@
+{
+	"info": {
+		"_postman_id": "47a41c99-57fc-4ee9-b3fc-15984c8aaf0a",
+		"name": "Node MasterClass Course Homework 3",
+		"description": "## The Assignment (Scenario):\n\nYou are building the API for a pizza-delivery company. Don't worry about a frontend, just build the API. Here's the spec from your project manager:\n\n1. New users can be created, their information can be edited, and they can be deleted. We should store their name, email address, and street address.\n\n2. Users can log in and log out by creating or destroying a token.\n\n3. When a user is logged in, they should be able to GET all the possible menu items (these items can be hardcoded into the system).\n\n4. A logged-in user should be able to fill a shopping cart with menu items\n\n5. A logged-in user should be able to create an order. You should integrate with the Sandbox of Stripe.com to accept their payment. Note: Use the stripe sandbox for your testing. Follow this link and click on the \"tokens\" tab to see the fake tokens you can use server-side to confirm the integration is working: https://stripe.com/docs/testing#cards\n\n6. When an order is placed, you should email the user a receipt. You should integrate with the sandbox of Mailgun.com for this. Note: Every Mailgun account comes with a sandbox email account domain (whatever@sandbox123.mailgun.org) that you can send from by default. So, there's no need to setup any DNS for your domain for this task https://documentation.mailgun.com/en/latest/faqs.html#how-do-i-pick-a-domain-name-for-my-mailgun-account\n\nImportant Note: If you use external libraries (NPM) to integrate with Stripe or Mailgun, you will not pass this assignment. You must write your API calls from scratch. Look up the \"Curl\" documentation for both APIs so you can figure out how to craft your API calls.\n\nThis is an open-ended assignment. You may take any direction you'd like to go with it, as long as your project includes the requirements. It can include anything else you wish as well.\n\nP.S. Don't forget to document how a client should interact with the API you create!\n",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "tokens",
+			"item": [
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"email\" : \"user@example.com\",\n\"password\" : \"secret\"\n}\n"
+						},
+						"url": "http://{{test_api_path}}/tokens",
+						"description": "User login with email and password"
+					},
+					"response": []
+				},
+				{
+					"name": "Extend user's token",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\" : {{token}},\n\t\"extend\" : true\n}"
+						},
+						"url": "http://{{test_api_path}}/tokens",
+						"description": "User extending token for 1 hour from now"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout user",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://{{test_api_path}}/tokens?id={{token}}",
+							"protocol": "http",
+							"host": [
+								"{{test_api_path}}"
+							],
+							"path": [
+								"tokens"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "{{token}}"
+								}
+							]
+						},
+						"description": "User deleting existing token"
+					},
+					"response": []
+				}
+			],
+			"description": "Folder for login"
+		},
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "Create user",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"fullname\" : \"{{user_fullname}}\", \n\t\"email\" : \"{{user_email}}\",\n\t\"password\" : \"{{password}}\",\n\t\"address\" : \"{{user_address}}\"\n}\n"
+						},
+						"url": "http://{{test_api_path}}/users",
+						"description": "Create a new user"
+					},
+					"response": []
+				},
+				{
+					"name": "Get user data",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://{{test_api_path}}/users?email={{user_email}}",
+							"protocol": "http",
+							"host": [
+								"{{test_api_path}}"
+							],
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "{{user_email}}"
+								}
+							]
+						},
+						"description": "Returns user data, for authenticated user"
+					},
+					"response": []
+				},
+				{
+					"name": "Update user's data",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "token",
+								"type": "text",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"fullname\" : \"{{user_fullname}}\", \n\t\"email\" : \"{{user_email}}\",\n\t\"password\" : \"{{password}}\",\n\t\"address\" : \"{{user_address}}\"\n}\n"
+						},
+						"url": "http://{{test_api_path}}/users",
+						"description": "Update data of existing user"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete user",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "http://{{test_api_path}}/users?email={{user_email}}",
+							"protocol": "http",
+							"host": [
+								"{{test_api_path}}"
+							],
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "{{user_email}}"
+								}
+							]
+						},
+						"description": "Delete data of existing user"
+					},
+					"response": []
+				}
+			],
+			"description": "Folder for users"
+		},
+		{
+			"name": "offer",
+			"item": [
+				{
+					"name": "Get shopping offer from catalog",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": "http://{{test_api_path}}/offer",
+						"description": "Gets all items on menu"
+					},
+					"response": []
+				}
+			],
+			"description": "Folder for offer"
+		},
+		{
+			"name": "shopping",
+			"item": [
+				{
+					"name": "Add article to shopping cart",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\" : {{article}}\n}"
+						},
+						"url": "http://{{test_api_path}}/shopping",
+						"description": "Add item to shopping cart"
+					},
+					"response": []
+				},
+				{
+					"name": "Get all items in shopping cart",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://{{test_api_path}}/shopping?email={{user_email}}&index={{line_index}}",
+							"protocol": "http",
+							"host": [
+								"{{test_api_path}}"
+							],
+							"path": [
+								"shopping"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "{{user_email}}"
+								},
+								{
+									"key": "index",
+									"value": "{{line_index}}"
+								}
+							]
+						},
+						"description": "Get itens in shopping cart"
+					},
+					"response": []
+				},
+				{
+					"name": "Update line in shopping cart",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\" : {{user_email}},\n\t\"index\" : {{line_index}},\n\t\"id\" : {{article_id}}\n}"
+						},
+						"url": "http://{{test_api_path}}/shopping"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete line or clear shopping cart",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "http://{{test_api_path}}/shopping?email={{user_email}}&index={{line_index}}",
+							"protocol": "http",
+							"host": [
+								"{{test_api_path}}"
+							],
+							"path": [
+								"shopping"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "{{user_email}}"
+								},
+								{
+									"key": "index",
+									"value": "{{line_index}}"
+								}
+							]
+						},
+						"description": "Delete all items from shoping cart"
+					},
+					"response": []
+				}
+			],
+			"description": "Folder for shopping"
+		},
+		{
+			"name": "orders",
+			"item": [
+				{
+					"name": "Create the order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\" : {{user_email}}\n}"
+						},
+						"url": "http://{{test_api_path}}/orders",
+						"description": "Add item to shopping cart"
+					},
+					"response": []
+				},
+				{
+					"name": "Get all items in shopping cart",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://{{test_api_path}}/orders?email={{user_email}}&id={{order_id}}",
+							"protocol": "http",
+							"host": [
+								"{{test_api_path}}"
+							],
+							"path": [
+								"orders"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "{{user_email}}"
+								},
+								{
+									"key": "id",
+									"value": "{{order_id}}"
+								}
+							]
+						},
+						"description": "Get itens in shopping cart"
+					},
+					"response": []
+				}
+			],
+			"description": "Folder for orders",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4350270f-0661-4d63-9f61-74d5cf1d0fed",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "4d1258e8-ef0b-401c-9527-69a3962d1279",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "checkout",
+			"item": [
+				{
+					"name": "Checkout and place order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\" : {{user_email}}\n}"
+						},
+						"url": "http://{{test_api_path}}/checkout",
+						"description": "place the order based on content of user's shopping cart"
+					},
+					"response": []
+				}
+			],
+			"description": "Folder for checkout"
+		},
+		{
+			"name": "payment",
+			"item": [
+				{
+					"name": "Send payment for order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\" : {{user_email}},\n\t\"id\" : {{order_id}}\n}"
+						},
+						"url": "http://{{test_api_path}}/checkout",
+						"description": "place the order based on content of user's shopping cart"
+					},
+					"response": []
+				}
+			],
+			"description": "Folder for payment",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "16527b24-75f7-4527-bb82-a8b0a9cc7f9e",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "46104967-c3d0-4e89-955c-43c71ad31d9b",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "f1937ba6-c1cd-4d80-aaa2-a04da2a3fa02",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "38a30492-4cb5-4c01-a3fd-5d81d4652bc4",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "880e3c23-0f0e-4870-9fda-cc0a031696ba",
+			"key": "token",
+			"value": "5fwgc9gvody9adkqqn3t",
+			"type": "string"
+		},
+		{
+			"id": "8ce86ac7-bb24-4741-b3c7-6fa92503e9b4",
+			"key": "user_email",
+			"value": "customer@example.com",
+			"type": "string"
+		},
+		{
+			"id": "71d05fe1-c4fe-438b-b52b-29275c0281f2",
+			"key": "password",
+			"value": "secret12345",
+			"type": "string"
+		},
+		{
+			"id": "363a2db8-90df-4efa-9076-d11a5a62321b",
+			"key": "user_fullname",
+			"value": "Joe Doe",
+			"type": "string"
+		},
+		{
+			"id": "9c8badf6-b3e0-4e0a-ad28-1fb7e100ae52",
+			"key": "user_address",
+			"value": "Lost Paradise",
+			"type": "string"
+		},
+		{
+			"id": "85993a8f-10b1-433d-af46-1aea894a7325",
+			"key": "article_pizza",
+			"value": "100",
+			"type": "string"
+		},
+		{
+			"id": "9ba80b11-9b99-4d9c-990f-ce878f8a3fb0",
+			"key": "article_sweet",
+			"value": "500",
+			"type": "string"
+		},
+		{
+			"id": "579b5317-6809-4a2d-9a15-de7dd449f511",
+			"key": "line_index",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"id": "56c1ce9d-c9ef-4c29-8069-6aaeaf4340f2",
+			"key": "order_id",
+			"value": "5fwgc9gvody9adkqqn3t",
+			"type": "string"
+		},
+		{
+			"id": "8a15d402-ce2d-4f92-a34f-3618b88637aa",
+			"key": "test_api_path",
+			"value": "localhost:3000/api",
+			"type": "string"
+		}
+	]
+}

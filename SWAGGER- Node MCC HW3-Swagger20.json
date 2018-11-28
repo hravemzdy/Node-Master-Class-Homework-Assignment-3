@@ -1,0 +1,694 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0",
+    "title": "Node MasterClass Course Homework 3",
+    "description": "## The Assignment (Scenario):\n\nYou are building the API for a pizza-delivery company. Don't worry about a frontend, just build the API. Here's the spec from your project manager:\n\n1. New users can be created, their information can be edited, and they can be deleted. We should store their name, email address, and street address.\n\n2. Users can log in and log out by creating or destroying a token.\n\n3. When a user is logged in, they should be able to GET all the possible menu items (these items can be hardcoded into the system).\n\n4. A logged-in user should be able to fill a shopping cart with menu items\n\n5. A logged-in user should be able to create an order. You should integrate with the Sandbox of Stripe.com to accept their payment. Note: Use the stripe sandbox for your testing. Follow this link and click on the \"tokens\" tab to see the fake tokens you can use server-side to confirm the integration is working: https://stripe.com/docs/testing#cards\n\n6. When an order is placed, you should email the user a receipt. You should integrate with the sandbox of Mailgun.com for this. Note: Every Mailgun account comes with a sandbox email account domain (whatever@sandbox123.mailgun.org) that you can send from by default. So, there's no need to setup any DNS for your domain for this task https://documentation.mailgun.com/en/latest/faqs.html#how-do-i-pick-a-domain-name-for-my-mailgun-account\n\nImportant Note: If you use external libraries (NPM) to integrate with Stripe or Mailgun, you will not pass this assignment. You must write your API calls from scratch. Look up the \"Curl\" documentation for both APIs so you can figure out how to craft your API calls.\n\nThis is an open-ended assignment. You may take any direction you'd like to go with it, as long as your project includes the requirements. It can include anything else you wish as well.\n\nP.S. Don't forget to document how a client should interact with the API you create!\n",
+    "contact": {}
+  },
+  "host": "DefaultParameterValue",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/tokens": {
+      "post": {
+        "description": "User login with email and password",
+        "summary": "Login User",
+        "tags": [
+          "tokens"
+        ],
+        "operationId": "TokensPost",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/LoginUserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      },
+      "put": {
+        "description": "User extending token for 1 hour from now",
+        "summary": "Extend user's token",
+        "tags": [
+          "tokens"
+        ],
+        "operationId": "TokensPut",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      },
+      "delete": {
+        "description": "User deleting existing token",
+        "summary": "Logout user",
+        "tags": [
+          "tokens"
+        ],
+        "operationId": "TokensDelete",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "description": "Create a new user",
+        "summary": "Create user",
+        "tags": [
+          "users"
+        ],
+        "operationId": "UsersPost",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/CreateuserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      },
+      "get": {
+        "description": "Returns user data, for authenticated user",
+        "summary": "Get user data",
+        "tags": [
+          "users"
+        ],
+        "operationId": "UsersGet",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      },
+      "put": {
+        "description": "Update data of existing user",
+        "summary": "Update user's data",
+        "tags": [
+          "users"
+        ],
+        "operationId": "UsersPut",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Updateuser'sdataRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete data of existing user",
+        "summary": "Delete user",
+        "tags": [
+          "users"
+        ],
+        "operationId": "UsersDelete",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/offer": {
+      "get": {
+        "description": "Gets all items on menu",
+        "summary": "Get shopping offer from catalog",
+        "tags": [
+          "offer"
+        ],
+        "operationId": "OfferGet",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/shopping": {
+      "post": {
+        "description": "Add item to shopping cart",
+        "summary": "Add article to shopping cart",
+        "tags": [
+          "shopping"
+        ],
+        "operationId": "ShoppingPost",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      },
+      "get": {
+        "description": "Get itens in shopping cart",
+        "summary": "Get all items in shopping cart",
+        "tags": [
+          "shopping"
+        ],
+        "operationId": "ShoppingGet",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "index",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "description": ""
+          },
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      },
+      "put": {
+        "description": "TODO: Add Description",
+        "summary": "Update line in shopping cart",
+        "tags": [
+          "shopping"
+        ],
+        "operationId": "ShoppingPut",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete all items from shoping cart",
+        "summary": "Delete line or clear shopping cart",
+        "tags": [
+          "shopping"
+        ],
+        "operationId": "ShoppingDelete",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "index",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "description": ""
+          },
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/orders": {
+      "post": {
+        "description": "Add item to shopping cart",
+        "summary": "Create the order",
+        "tags": [
+          "orders"
+        ],
+        "operationId": "OrdersPost",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      },
+      "get": {
+        "description": "Get itens in shopping cart",
+        "summary": "Get all items in shopping cart",
+        "tags": [
+          "orders"
+        ],
+        "operationId": "OrdersGet",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/checkout": {
+      "post": {
+        "description": "place the order based on content of user's shopping cart",
+        "summary": "Checkout and place order",
+        "tags": [
+          "checkout"
+        ],
+        "operationId": "CheckoutPost",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "LoginUserRequest": {
+      "title": "LoginUserRequest",
+      "example": {
+        "email": "user@example.com",
+        "password": "secret"
+      },
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "email",
+        "password"
+      ]
+    },
+    "CreateuserRequest": {
+      "title": "CreateuserRequest",
+      "example": {
+        "fullname": "Joe Doe",
+        "email": "customer@example.com",
+        "password": "secret12345",
+        "address": "Lost Paradise"
+      },
+      "type": "object",
+      "properties": {
+        "fullname": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fullname",
+        "email",
+        "password",
+        "address"
+      ]
+    },
+    "Updateuser'sdataRequest": {
+      "title": "Updateuser'sdataRequest",
+      "example": {
+        "fullname": "Joe Doe",
+        "email": "customer@example.com",
+        "password": "secret12345",
+        "address": "Lost Paradise"
+      },
+      "type": "object",
+      "properties": {
+        "fullname": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fullname",
+        "email",
+        "password",
+        "address"
+      ]
+    }
+  },
+  "tags": [
+    {
+      "name": "tokens",
+      "description": "Folder for login"
+    },
+    {
+      "name": "users",
+      "description": "Folder for users"
+    },
+    {
+      "name": "offer",
+      "description": "Folder for offer"
+    },
+    {
+      "name": "shopping",
+      "description": "Folder for shopping"
+    },
+    {
+      "name": "orders",
+      "description": "Folder for orders"
+    },
+    {
+      "name": "checkout",
+      "description": "Folder for checkout"
+    },
+    {
+      "name": "payment",
+      "description": "Folder for payment"
+    }
+  ]
+}
